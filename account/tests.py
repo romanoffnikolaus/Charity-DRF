@@ -78,7 +78,7 @@ class UserTest(APITestCase):
         view= views.ChangePasswordView.as_view()
         response = view(request)
         assert response.status_code == 400
-        assert response.data['non_field_errors'][0] == 'Пароли не совпадают!'
+        assert response.data['non_field_errors'][0] == 'Password mismatch!'
     
     def test_change_password_pass(self):
 
@@ -92,7 +92,7 @@ class UserTest(APITestCase):
         view= views.ChangePasswordView.as_view()
         response = view(request)
         assert response.status_code == 400
-        assert response.data['old_password'][0] == 'Введен некорректный пароль'
+        assert response.data['old_password'][0] == 'Uncorrecct password'
 
     def test_forgot_password(self):
         data = {
@@ -102,7 +102,7 @@ class UserTest(APITestCase):
         force_authenticate(request, user=self.user)
         view = views.ForgotPasswordView.as_view()
         response = view(request)
-        assert response.data == 'Вам выслали сообщение для восстановления пароля'
+        assert response.data == 'You will receive a link to reset your password.'
 
     def test_forgor_password_complete(self):
 
@@ -134,7 +134,7 @@ class UserTest(APITestCase):
         view = views.ForgotPasswordCompleteView.as_view()
         response = view(request)
         assert response.status_code == 400
-        assert response.data['non_field_errors'][0] == 'Пароли не совпадают'
+        assert response.data['non_field_errors'][0] == 'Password mismatch!'
 
     def test_forgor_password_complete_code(self):
         email = self.user.email
@@ -150,4 +150,4 @@ class UserTest(APITestCase):
         view = views.ForgotPasswordCompleteView.as_view()
         response = view(request)
         assert response.status_code == 400
-        assert response.data['non_field_errors'][0] == 'Пользователь не найден или введен неправильный код'
+        assert response.data['non_field_errors'][0] == 'User is not found or wrong activation code'

@@ -20,7 +20,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             choices=(
                 ('Default user', 'Default user (Donations only)'),
                 ('User helper', 'User helper (Creating charity programs)'),
-                ('Fond', 'Fond (Creating charity programs as organization)')
+                ('Fund', 'Fund (Creating charity programs as organization)')
             )
         )
     
@@ -49,7 +49,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         password = attrs.get('password')
         password_confirm = attrs.pop('password_confirm')
         if password != password_confirm:
-            raise serializers.ValidationError('Пароли не совпадают')
+            raise serializers.ValidationError('Password mismatch')
         if attrs.get('user_type') == 'Default user':
             attrs['verified_account'] = True
         return attrs
@@ -62,17 +62,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_twitter_url(self, twitter_url):
         if not twitter_url.startswith('https://twitter.com/'):
-            raise serializers.ValidationError('Введенна некорректная ссылка на профиль в твиттер. Пример: "https://twitter.com/Username"')
+            raise serializers.ValidationError('Uncorrect twitter link. Example: "https://twitter.com/Username"')
         return twitter_url
 
     def validate_facebook_url(self, facebook_url):
         if not facebook_url.startswith('https://www.facebook.com/'):
-            raise serializers.ValidationError('Введена некорректная ссылка на facebook. Пример: "https://www.facebook.com/Username"')
+            raise serializers.ValidationError('Uncorrect facebook link. Example: "https://www.facebook.com/Username"')
         return facebook_url
     
     def validate_telegram_url(self, facebook_url):
         if not facebook_url.startswith('https://t.me/'):
-            raise serializers.ValidationError('Введена некорректная ссылка на facebook. Пример: "https://t.me/Username"')
+            raise serializers.ValidationError('Uncorrect telegram link. Example: "https://t.me/Username"')
         return facebook_url
     
 
@@ -97,13 +97,13 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         new_password = attrs.get("new_password")
         new_password_confirm = attrs.pop('new_password_confirm')
         if new_password != new_password_confirm:
-            raise serializers.ValidationError('Пароли не совпадают!')
+            raise serializers.ValidationError('Password mismatch!')
         return attrs
 
     def validate_old_password(self, old_password):
         user = self.context['request'].user
         if not user.check_password(old_password):
-            raise serializers.ValidationError('Введен некорректный пароль')
+            raise serializers.ValidationError('Uncorrecct password')
         return old_password
 
     def set_new_password(self):
@@ -118,7 +118,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
     def validate_email(self, email):
         if not User.objects.filter(email=email).exists():
-            raise serializers.ValidationError("Пользователь с такими данными не найден")
+            raise serializers.ValidationError("User is not found")
         return email
 
     def send_verification_email(self):
@@ -126,8 +126,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
         user = User.objects.get(email=email)
         user.create_activation_code()
         send_mail(
-            'Восстановление пароля',
-            f'Ваш код восстановления: {user.activation_code}',
+            'Password recovery',
+            f'Your activation code: {user.activation_code}',
             'example@gmail.com',
             [user.email]
         )
@@ -145,9 +145,9 @@ class ForgotPasswordCompleteSerializer(serializers.Serializer):
         password1 = attrs.get('password')
         password2 = attrs.get('password_confirm')
         if not User.objects.filter(email=email, activation_code=code).exists():
-            raise serializers.ValidationError('Пользователь не найден или введен неправильный код')
+            raise serializers.ValidationError('User is not found or wrong activation code')
         if password1 != password2:
-            raise serializers.ValidationError('Пароли не совпадают')
+            raise serializers.ValidationError('Password mismatch!')
         return attrs
 
     def set_new_password(self):

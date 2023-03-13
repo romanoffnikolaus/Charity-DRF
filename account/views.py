@@ -34,11 +34,11 @@ class ActivationView(APIView):
             email=email,
             activation_code=activation_code).first()
         if not user:
-            return Response('Пользователь не найден', status=400)
+            return Response('User is not found', status=400)
         user.activation_code = ''
         user.is_active = True
         user.save()
-        return Response('Активирован', status=200)
+        return Response('Activated', status=200)
 
 
 class ChangePasswordView(PermissionMixin, APIView):
@@ -51,10 +51,12 @@ class ChangePasswordView(PermissionMixin, APIView):
         )
         if serializer.is_valid(raise_exception=True):
             serializer.set_new_password()
-            message = 'Смена пароля прошла успешно'
+            message = 'Successful'
+            return Response(serializer.validated_data)
         else:
-            message = 'Введен некорректный пароль'
-        return Response(serializer.validated_data)
+            message = 'Uncorrecct password'
+            return Response(message)
+        
 
 
 class ForgotPasswordView(PermissionMixin, APIView):
@@ -63,7 +65,7 @@ class ForgotPasswordView(PermissionMixin, APIView):
         serializer = serializers.ForgotPasswordSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.send_verification_email()
-            return Response('Вам выслали сообщение для восстановления пароля')
+            return Response('You will receive a link to reset your password.')
 
 
 class ForgotPasswordCompleteView(PermissionMixin, APIView):
