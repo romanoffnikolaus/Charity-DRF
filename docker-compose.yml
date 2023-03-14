@@ -8,8 +8,7 @@ services: #билд контейнеров для приложений испо�
     container_name: db
     env_file:
       - .env
-    
-  
+
 
   main_api:
     build: #можно использовать чтобы забилдить из докерфайла а не из готового образа
@@ -21,8 +20,8 @@ services: #билд контейнеров для приложений испо�
       - media_volume:/SaveTheDay/media
     command: >  # выполнение команды sh -c указывает, что команду нужно отправить в терминал
           sh -c "python manage.py collectstatic --noinput &&
-                python manage.py migrate &&
-                gunicorn --bind 0.0.0.0:8000 core.wsgi"
+                 python manage.py migrate &&
+                 gunicorn --bind 0.0.0.0:8000 core.wsgi"
     env_file:
       - .env
     ports:
@@ -41,10 +40,13 @@ services: #билд контейнеров для приложений испо�
   test:
     build:
       context: .
+    container_name: test
     env_file:
       - .env
     command: >
-      sh -c 'python manage.py test'
+      sh -c "python manage.py test"
+    depends_on:
+      - db
     
 
   celery:
