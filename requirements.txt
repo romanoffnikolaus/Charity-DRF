@@ -3,7 +3,7 @@ djangorestframework
 django-filter
 djangorestframework-simplejwt
 django-cors-headers
-psycopg2-binary
+psycopg2
 python-decouple
 python-slugify
 drf-yasg

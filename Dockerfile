@@ -6,6 +6,6 @@ ENV PYTHONUNBUFFERED 1
 COPY . /SaveTheDay
 WORKDIR /SaveTheDay
 #копирование всех файлов из текущей директории и назначание ее рабочей директорией
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 #запустить команду
