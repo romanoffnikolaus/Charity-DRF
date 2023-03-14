@@ -3,8 +3,8 @@ version: '3.8' #версия докеркомпоза
 services: #билд контейнеров для приложений использованных в проекте
   
   db:
-    image: postrgres:14.7
-    container_name: database
+    image: postgres:14.7
+    container_name: db
     env_file:
       - .env
     
