@@ -7,6 +7,8 @@ services: #билд контейнеров для приложений испо�
     container_name: db
     env_file:
       - .env
+    volumes: 
+      - db:/var/lib/postgresql/data
 
 
   main_api:
@@ -82,6 +84,7 @@ services: #билд контейнеров для приложений испо�
 volumes: 
   static_volume:
   media_volume:
+  db:
 
 
 
