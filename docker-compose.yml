@@ -1,0 +1,94 @@
+version: '3.8' #версия докеркомпоза
+
+services: #билд контейнеров для приложений использованных в проекте
+  
+  db:
+    image: postgres:14.7
+    container_name: db
+    env_file:
+      - .env
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+
+  main_api:
+    build: #можно использовать чтобы забилдить из докерфайла а не из готового образа
+      dockerfile: Dockerfile
+      context: .
+    container_name: main_api
+    volumes: #указывает директории где хранятся статические файлы
+      - static_volume:/SaveTheDay/static
+      - media_volume:/SaveTheDay/media
+    command: >  # выполнение команды sh -c указывает, что команду нужно отправить в терминал
+          sh -c "python manage.py collectstatic --noinput &&
+                 python manage.py migrate &&
+                 gunicorn --bind 0.0.0.0:8000 core.wsgi"
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    depends_on: #указывает после каких приложений будет билдится этот контейнер, запустится только в случае успешных пусков всего что там указано
+      - db
+      - redis
+      - test
+    
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+  
+
+  test:
+    build:
+      context: .
+    container_name: test
+    env_file:
+      - .env
+    command: >
+      sh -c "python manage.py test"
+    depends_on:
+      - db
+    
+
+  celery:
+    build: 
+      context: .
+    env_file:
+      - .env
+    command: >
+      sh -c 'celery -A core worker -l info'
+    volumes:
+      - .:/SaveTheDay
+    links:
+      - redis
+    depends_on:
+      - db
+      - redis
+      - test
+      - main_api
+
+  nginx:
+    build: 
+      dockerfile: Dockerfile
+      context: ./docker/nginx
+    container_name: nginx
+    image: nginx
+    volumes:
+      - static_volume:/SaveTheDay/static
+      - media_volume:/SaveTheDay/media
+    depends_on:
+      - main_api
+    ports:
+      - "${NGINX_EXTERNAL_PORT}:${NGINX_EXTERNAL_PORT}"
+
+volumes: 
+  static_volume:
+  media_volume:
+  db:
+
+
+
+
+
+    
+  
