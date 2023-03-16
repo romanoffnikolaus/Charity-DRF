@@ -1,5 +1,5 @@
 make run:
-	python manage.py runserver
+	python manage.py runserver --settings=core.settings_dev
 
 make admin:
 	python manage.py createsuperuser
@@ -27,4 +27,7 @@ make up:
 
 make down:
 	docker-compose down
+
+make docker-admin:
+	docker-compose exec main_api python manage.py createsuperuser
 
