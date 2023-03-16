@@ -77,6 +77,9 @@ services: #билд контейнеров для приложений испо�
     container_name: nginx
     image: nginx
     volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - etc-letsencrypt:/etc/letcsencrypt
       - static_volume:/SaveTheDay/static
       - media_volume:/SaveTheDay/media
     depends_on:
@@ -86,11 +89,21 @@ services: #билд контейнеров для приложений испо�
       - "443:443"
     restart: always
 
+  #certbot:
+    #image: certbot/certbot
+    #container_name: certbot
+    #volumes: 
+      #- ./certbot/conf:/etc/letsencrypt
+      #- ./certbot/www:/var/www/certbot
+    #command: certonly --webroot -w /var/www/certbot --force-renewal --email savethedaycompany@gmail.com -d savethedayteam.com --agree-tos
+
+
 
 volumes: 
   static_volume:
   media_volume:
   db:
+  etc-letsencrypt:
 
 
 
