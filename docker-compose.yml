@@ -6,7 +6,7 @@ services: #билд контейнеров для приложений испо�
     image: postgres:14.7
     container_name: db
     env_file:
-      - .env
+      - .env.prod
     volumes: 
       - db:/var/lib/postgresql/data
 
@@ -24,7 +24,7 @@ services: #билд контейнеров для приложений испо�
                  python manage.py migrate &&
                  gunicorn --bind 0.0.0.0:8000 core.wsgi"
     env_file:
-      - .env
+      - .env.prod
     expose:
       - 8000
     depends_on: #указывает после каких приложений будет билдится этот контейнер, запустится только в случае успешных пусков всего что там указано
@@ -43,7 +43,7 @@ services: #билд контейнеров для приложений испо�
       context: .
     container_name: test
     env_file:
-      - .env
+      - .env.prod
     command: >
       sh -c "python manage.py test"
     depends_on:
@@ -54,7 +54,7 @@ services: #билд контейнеров для приложений испо�
     build: 
       context: .
     env_file:
-      - .env
+      - .env.prod
     command: >
       sh -c 'celery -A core worker -l info'
     volumes:
