@@ -59,7 +59,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         send_activation_code_celery.delay(user.email, user.activation_code)
         return user
     
-
     def validate_twitter_url(self, twitter_url):
         if not twitter_url.startswith('https://twitter.com/'):
             raise serializers.ValidationError('Uncorrect twitter link. Example: "https://twitter.com/Username"')
