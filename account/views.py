@@ -7,6 +7,8 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
+import django_filters
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
@@ -108,3 +110,13 @@ class ProfileView(generics.RetrieveUpdateAPIView):
                 user.verified_account = True
         user.save()
         return super().update(request, *args, **kwargs)
+
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.ProfileSerializer
+    filter_backends = [
+        django_filters.rest_framework.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter]
+    ordering_fields = ['date_joined']
