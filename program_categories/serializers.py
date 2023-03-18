@@ -8,4 +8,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = models.Category
         fields = '__all__'
 
+    
+
 
