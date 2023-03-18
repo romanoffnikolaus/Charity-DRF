@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     #apps
     'account',
     'program_categories',
-    'charity_programs'
+    'charity_programs',
+    'reports',
 
 ]
 
