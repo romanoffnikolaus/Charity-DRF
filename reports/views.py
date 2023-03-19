@@ -36,13 +36,15 @@ class ReportView(ModelViewSet):
         instance = self.get_object()
         images = request.FILES.getlist('images')
         data = request.data.copy()
-        data.pop('images')
+        data.pop('images', None)
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        instance.reportimage_set.all().delete()
-        for image in images:
-            ReportImage.objects.create(report=instance, image=image)
+        if images:
+            instance.reportimage_set.all().delete()
+            for image in images:
+                ReportImage.objects.create(report=instance, image=image)
+
         response_data = serializer.data
         report_images = instance.reportimage_set.all()
         images_serializer = ReportImageSerializer(report_images, many=True)

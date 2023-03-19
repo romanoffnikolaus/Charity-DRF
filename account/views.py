@@ -9,12 +9,14 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 import django_filters
+from rest_framework.pagination import PageNumberPagination
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
 
 
 User = get_user_model()
+
 
 class PermissionMixin:
     permission_classes = [IsAuthenticated]
@@ -112,6 +114,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         return super().update(request, *args, **kwargs)
 
 
+class UserListPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.ProfileSerializer
@@ -120,3 +128,6 @@ class UserListView(generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter]
     ordering_fields = ['date_joined']
+    filterset_fields = ['verified_account', 'user_type']
+    search_fields = ['date_joined']
+    pagination_class = UserListPagination

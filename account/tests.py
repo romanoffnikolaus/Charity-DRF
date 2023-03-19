@@ -25,12 +25,11 @@ class UserTest(APITestCase):
             'first_name': 'test_name',
             'last_name': 'test_last_name',
             'username':'test_username',
-            'user_type': 'Default user'
+            'user_type': 'default_user'
         }
         request = self.factory.post('register/', data, format='json')
         view = views.RegistrationView.as_view()
         response = view(request)
-        print(response.status_code)
         assert response.status_code == 200
         assert User.objects.filter(email = data['email']).exists()
 
