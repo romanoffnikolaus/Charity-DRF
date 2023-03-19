@@ -23,13 +23,21 @@ class News(Base):
     time = Column(String(255))
 
 
-class Disaster(Base):
-    __tablename__ = "disasters"
+class AlterNews(Base):
+    __tablename__ = "alter_news"
 
     id = Column(Integer, primary_key=True)
     title = Column(String(255), nullable=False)
     location = Column(String(255))
     link = Column(String(255))
 
+
+class Disaster(Base):
+    __tablename__ = "disasters"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(255), nullable=False)
+    disaster_type = Column(String(255))
+    affected_countries = Column(String(255))
 
 Base.metadata.create_all(engine)
