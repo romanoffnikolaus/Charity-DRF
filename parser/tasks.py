@@ -1,9 +1,10 @@
-from parsing import parse_data_and_save
+from parsing import get_news, get_disasters
 from core.celery import app
 import time
 
 @app.task
-def parse_data_and_save_celery():
+def parse_NewsDisasters_and_save_celery():
     while True:
-        parse_data_and_save()
+        news = get_news()
+        disasters = get_disasters()
         time.sleep(600)
