@@ -18,9 +18,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             required=True,
             help_text='Select user type',
             choices=(
-                ('Default user', 'Default user (Donations only)'),
-                ('User helper', 'User helper (Creating charity programs)'),
-                ('Fund', 'Fund (Creating charity programs as organization)')
+                ('default_user', 'Default user (Donations only)'),
+                ('user_helper', 'User helper (Creating charity programs)'),
+                ('fund', 'Fund (Creating charity programs as organization)')
             )
         )
     

@@ -1,8 +1,13 @@
 from django.contrib import admin
+from .models import Reports, ReportImage
 
-from . models import Reports, ReportImage
 
-# Register your models here.
+class ReportImageInline(admin.TabularInline):
+    model = ReportImage
 
-admin.site.register(Reports)
-admin.site.register(ReportImage)
+
+@admin.register(Reports)
+class ReportsAdmin(admin.ModelAdmin):
+    list_display = ('user', 'program', 'posted_at')
+    prepopulated_fields = {'slug': ('body',)}
+    inlines = [ReportImageInline]
