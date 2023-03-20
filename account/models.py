@@ -41,7 +41,8 @@ class User(AbstractUser):
     facebook_url = models.URLField(max_length=255, blank=True)
     telegram_url = models.URLField(max_length=255, blank=True)
     about_user = models.CharField(max_length=255, blank=True)
-    
+    phone_number = models.CharField(max_length=20)
+
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     user_type = models.CharField(max_length=30, blank=True)
