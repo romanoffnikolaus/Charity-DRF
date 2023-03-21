@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 
 from .tasks import send_activation_code_celery
+from charity_programs.models import Program
+from charity_programs.serializers import ProgramSerializer
 
 
 User = get_user_model()
@@ -13,6 +15,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     slug = serializers.ReadOnlyField()
     id = serializers.ReadOnlyField()
     verified_account = serializers.ReadOnlyField()
+    phone_number = serializers.CharField(max_length=20, required=False)
 
     user_type = serializers.ChoiceField(
             required=True,
@@ -42,6 +45,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'about_user',
             'user_type',
             'verified_account',
+            'phone_number',
             'id'
         )
 
@@ -50,14 +54,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         password_confirm = attrs.pop('password_confirm')
         if password != password_confirm:
             raise serializers.ValidationError('Password mismatch')
-        if attrs.get('user_type') == 'Default user':
+        user_type = attrs.get('user_type')
+        if user_type != 'default_user' and not attrs.get('phone_number'):
+            raise serializers.ValidationError('Phone number is required for this user type.')
+        if attrs.get('user_type') == 'default_user':
             attrs['verified_account'] = True
         return attrs
-    
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        send_activation_code_celery.delay(user.email, user.activation_code)
-        return user
     
     def validate_twitter_url(self, twitter_url):
         if not twitter_url.startswith('https://twitter.com/'):
@@ -69,11 +71,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Uncorrect facebook link. Example: "https://www.facebook.com/Username"')
         return facebook_url
     
-    def validate_telegram_url(self, facebook_url):
-        if not facebook_url.startswith('https://t.me/'):
+    def validate_telegram_url(self, telegram_url):
+        if not telegram_url.startswith('https://t.me/'):
             raise serializers.ValidationError('Uncorrect telegram link. Example: "https://t.me/Username"')
-        return facebook_url
+        return telegram_url
     
+    def validate_phone_number(self, phone_number):
+        if not phone_number.startswith('+') and phone_number[1:].is_alpha() == False:
+            raise serializers.ValidationError('Uncorrect format for phone number. Example: +74952222222 or +996700400400')
+        return phone_number
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        send_activation_code_celery.delay(user.email, user.activation_code)
+        return user  
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
@@ -160,6 +171,7 @@ class ForgotPasswordCompleteSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     verified_account = serializers.ReadOnlyField()
+    your_programs = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -176,5 +188,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             'facebook_url',
             'user_type',
             'about_user',
-            'verified_account'
+            'verified_account',
+            'phone_number',
+            'your_programs'
         ]
+
+    def get_your_programs(self, instance):
+        programs = Program.objects.filter(user=instance)
+        program_serializer = ProgramSerializer(programs, many=True)
+        return program_serializer.data

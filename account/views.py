@@ -6,13 +6,14 @@ from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import filters
 import django_filters
 from rest_framework.pagination import PageNumberPagination
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
+from .models import User
 
 
 User = get_user_model()
@@ -99,19 +100,22 @@ class LoginView(TokenObtainPairView):
 class ProfileView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.ProfileSerializer
-    permission_classes = []
+    permission_classes = [IsOwnerOrReadOnly]
 
     def update(self, request, *args, **kwargs):
-        self.permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
         user = User.objects.get(username = request.user.username)
         print(user.verified_account)
         if 'user_type' in request.data.keys():
-            if request.data['user_type'] != 'Default user' and request.user.user_type == 'Default user':
+            if request.data['user_type'] != 'default_user' and request.user.user_type == 'default_user':
                 user.verified_account = False
-            if request.data['user_type'] == 'Default user' and request.user.user_type != 'Default user':
+            if request.data['user_type'] == 'default_user' and request.user.user_type != 'default_user':
                 user.verified_account = True
         user.save()
         return super().update(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        self.permission_classes = [AllowAny]
+        return super().retrieve(request, *args, **kwargs)
 
 
 class UserListPagination(PageNumberPagination):

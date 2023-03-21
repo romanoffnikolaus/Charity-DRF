@@ -1,12 +1,28 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 from .models import Reports, ReportImage
+from charity_programs.models import Program
 from .serializers import ReportSerializer, ReportImageSerializer
+from .permissions import IsProgramOwnerOrReadOnly, IsOwnerOrReadOnly
 
 
-class ReportView(ModelViewSet):
+class PermissionsMixin():
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permissions = [AllowAny]
+        elif self.action in ['create']:
+            permissions = [IsProgramOwnerOrReadOnly]
+        elif self.action in ['update', 'partial_update', 'destroy', ]:
+            permissions = [IsOwnerOrReadOnly]
+        else:
+            permissions = [AllowAny]
+        return [permission() for permission in permissions]
+
+
+class ReportView(PermissionsMixin, ModelViewSet):
     queryset = Reports.objects.all()
     serializer_class = ReportSerializer
     parser_classes = [MultiPartParser]
@@ -14,7 +30,7 @@ class ReportView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         images = request.FILES.getlist('images')
         data = request.data.copy()
-        data.pop('images')
+        data.pop('images',None)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         report = serializer.save(user=self.request.user)

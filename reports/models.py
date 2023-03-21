@@ -9,9 +9,12 @@ class Reports(models.Model):
     title = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='report')
-    body = models.TextField(blank=True, unique=True)
+    body = models.TextField(blank=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(primary_key=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Reports'
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
