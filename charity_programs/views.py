@@ -3,10 +3,12 @@ from rest_framework.viewsets import ModelViewSet
 import django_filters
 from rest_framework import filters
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from . import models
 from . import serializers
 from . import permissions as p
+from payment.models import Donation
 
 
 class ProgramsViewSet(ModelViewSet):
@@ -15,7 +17,7 @@ class ProgramsViewSet(ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter]
     search_fields = ['title', 'user__user_type']
-    filterset_fields = 'user__user_type'
+    # filterset_fields = 'user__user_type'
     ordering_fields = ['title', 'created_at']
     
     ordering = ['title']
@@ -42,4 +44,20 @@ class ProgramsViewSet(ModelViewSet):
         if self.action == 'list':
              self.serializer_class = serializers.ProgramListSerializer
         return super().get_serializer_class()
+    
+    @action(methods = ['POST'], detail=True)
+    def donate(self, request, pk):
+        program = self.get_object()
+        user = request.user
+        amount = request.data['amount']
+        donation =Donation.objects.create(program=program, user=user, amount=amount)
+        donation.save()
+        return Response('you are donated succesfully')
+
+
+
+
+
+    
+
     
