@@ -13,6 +13,7 @@ class Program(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(blank=True)
+    views_count = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         verbose_name_plural = 'Programs'

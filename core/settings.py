@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'charity_programs',
     'reports',
     'review',
-
+    'payment'
 ]
 
 MIDDLEWARE = [

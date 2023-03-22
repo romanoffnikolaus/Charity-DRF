@@ -5,7 +5,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 
 from .models import Reports, ReportImage
-from charity_programs.models import Program
 from .serializers import ReportSerializer, ReportImageSerializer
 from .permissions import IsProgramOwnerOrReadOnly, IsOwnerOrReadOnly
 from review.models import ReportRating
@@ -45,7 +44,6 @@ class ReportView(PermissionsMixin, ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         report_images = instance.reportimage_set.all()
-        print(instance)
         images_serializer = ReportImageSerializer(report_images, many=True)
         response_data = {**serializer.data,'images':images_serializer.data,}
         return Response(response_data)

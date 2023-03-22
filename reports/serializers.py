@@ -5,14 +5,20 @@ from .models import Reports, ReportImage
 
 
 class ReportImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ReportImage
-        fields = '__all__'
+        fields = ('id', 'report', 'image', 'image_url')
 
-
+    def get_image_url(self, obj): #Изменить URL перед деплоем. Это костыль.
+        if obj.image:
+            return f'http://127.0.0.1:8000/media/{obj.image.name}'
+        return None
+    
+    
 class ReportSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
+    user = serializers.ReadOnlyField(source='user.id')
     images = ReportImageSerializer(many=True, read_only=True)
 
     class Meta:
