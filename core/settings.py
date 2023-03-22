@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'program_categories',
     'charity_programs',
     'reports',
+    'review',
 
 ]
 
