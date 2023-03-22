@@ -13,10 +13,13 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-       
-        print(validated_data)
         program = Program.objects.create(user=user, **validated_data)
         return program
+    
+class ProgramListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = '__all__'
     
 
     
