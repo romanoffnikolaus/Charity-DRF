@@ -11,4 +11,7 @@ celery
 redis
 gunicorn
 pillow
+sqlalchemy
+django-paypal
+
 

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_filters',
     'drf_yasg',
+    'paypal.standard.ipn',
     #apps
     'account',
     'program_categories',
@@ -163,3 +164,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # static
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
+
+#paypal settings
+PAYPAL_RECEIVER_EMAIL = 'romanoffnikolaus@gmail.com'
+
+PAYPAL_TEST = True

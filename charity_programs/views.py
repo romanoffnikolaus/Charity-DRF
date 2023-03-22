@@ -3,6 +3,8 @@ from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 import django_filters
+from django.shortcuts import redirect
+from django.urls import reverse 
 
 from . import models
 from . import serializers
@@ -10,8 +12,6 @@ from . import permissions as p
 from review.serializers import ProgramCommentSerializer, ProgramRatingSerializer
 from review.models import ProgramRating, ProgramComment
 from payment.models import Donation
-
-
 
 class ProgramsViewSet(ModelViewSet):
     filter_backends = [
@@ -76,16 +76,18 @@ class ProgramsViewSet(ModelViewSet):
                 commented_program.save()
         return Response(serializer.data)
     
-    def get_serializer_class(self):
-        if self.action == 'list':
-             self.serializer_class = serializers.ProgramListSerializer
-        return super().get_serializer_class()
-    
     @action(methods = ['POST'], detail=True)
     def donate(self, request, pk):
         program = self.get_object()
         user = request.user
         amount = request.data['amount']
-        donation =Donation.objects.create(program=program, user=user, amount=amount)
-        donation.save()
-        return Response('you are donated succesfully')
+        donation =Donation.objects.create(charity_prigram=program, user=user, amount=amount)
+        request.session['donation_id'] = donation.id
+        return redirect('payment_process')
+        
+
+    
+    def get_serializer_class(self):
+            if self.action == 'list':
+                self.serializer_class = serializers.ProgramListSerializer
+            return super().get_serializer_class()
