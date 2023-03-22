@@ -22,8 +22,8 @@ class Reports(models.Model):
 
     def __str__(self) -> str:
         return f'{self.user} - {self.program}'
-    
-    
+
+
 class ReportImage(models.Model):
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='reports_photo/', blank=True)
