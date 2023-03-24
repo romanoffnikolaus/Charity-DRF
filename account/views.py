@@ -8,13 +8,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import filters
+from rest_framework.decorators import api_view
 import django_filters
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
+from django.shortcuts import redirect
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
 from .models import User
+from payment.models import Donation
 
 
 User = get_user_model()
@@ -64,7 +67,6 @@ class ChangePasswordView(PermissionMixin, APIView):
             return Response(message)
         
 
-
 class ForgotPasswordView(PermissionMixin, APIView):
     @swagger_auto_schema(request_body=serializers.ForgotPasswordSerializer)
     def post(self, request):
@@ -98,7 +100,7 @@ class LoginView(TokenObtainPairView):
         return Response(serializer.validated_data, status=200)
 
 
-class ProfileView(generics.RetrieveUpdateAPIView):
+class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.ProfileSerializer
     permission_classes = [IsOwnerOrReadOnly]
@@ -117,6 +119,18 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         self.permission_classes = [AllowAny]
         return super().retrieve(request, *args, **kwargs)
+    
+    
+class DonateToFundView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk= None):
+        fund = User.objects.get(id=pk)
+        user = request.user
+        amount = request.data['amount']
+        donation =Donation.objects.create(fund=fund, user=user, amount=amount)
+        request.session['donation_id'] = donation.id
+        return redirect('payment_process')
 
 
 class UserListPagination(PageNumberPagination):
@@ -133,7 +147,7 @@ class HelpersFundsListView(generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter]
     ordering_fields = ['date_joined']
-    filterset_fields = ['verified_account']
+    filterset_fields = ['verified_account', 'user_type']
     search_fields = ['date_joined']
     pagination_class = UserListPagination
 

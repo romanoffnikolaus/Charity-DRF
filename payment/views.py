@@ -41,7 +41,7 @@ def payment_process(request):
         'business': settings.PAYPAL_RECEIVER_EMAIL,
         'amount': '%.2f' % Decimal(donation.amount).quantize(
             Decimal('.01')),
-        'item_name': 'donation {}'.format(donation.charity_prigram.slug),
+        'item_name': 'donation {}'.format(donation.id),
         'invoice': str(donation_id),
         'currency_code': 'USD',
         'notify_url': 'http://{}{}'.format(host,
