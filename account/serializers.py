@@ -15,8 +15,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
     slug = serializers.ReadOnlyField()
     id = serializers.ReadOnlyField()
     verified_account = serializers.ReadOnlyField()
-    phone_number = serializers.CharField(max_length=20, required=False)
-
+    first_name = serializers.CharField(required = True)
+    last_name = serializers.CharField(required=True)
     user_type = serializers.ChoiceField(
             required=True,
             help_text='Select user type',
@@ -26,6 +26,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 ('fund', 'Fund (Creating charity programs as organization)')
             )
         )
+    phone_number = serializers.CharField(max_length=20, required=False)
+    region = serializers.ChoiceField(choices=User.region_fields, required=False)
     
     class Meta:
         model = User
@@ -45,8 +47,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'about_user',
             'user_type',
             'verified_account',
+            'id',
             'phone_number',
-            'id'
+            'region'
         )
 
     def validate(self, attrs):
@@ -55,8 +58,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if password != password_confirm:
             raise serializers.ValidationError('Password mismatch')
         user_type = attrs.get('user_type')
-        if user_type != 'default_user' and not attrs.get('phone_number'):
-            raise serializers.ValidationError('Phone number is required for this user type.')
+        if user_type == 'user_helper' or user_type == 'fund':
+            if not attrs.get('phone_number'):
+                raise serializers.ValidationError('Phone number is required for this user type.')
+            if not attrs.get('region'):
+                raise serializers.ValidationError('Region is required for this user type.')
         if attrs.get('user_type') == 'default_user':
             attrs['verified_account'] = True
         return attrs
@@ -190,7 +196,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'about_user',
             'verified_account',
             'phone_number',
-            'your_programs'
+            'your_programs',
+            'region'
         ]
 
     def get_your_programs(self, instance):

@@ -166,6 +166,6 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
 
 #paypal settings
-PAYPAL_RECEIVER_EMAIL = 'romanoffnikolaus@gmail.com'
+PAYPAL_RECEIVER_EMAIL = 'sb-fe043915120626@business.example.com'
 
 PAYPAL_TEST = True
