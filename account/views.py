@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import filters
 import django_filters
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
@@ -124,14 +125,27 @@ class UserListPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
+class HelpersFundsListView(generics.ListAPIView):
+    queryset = User.objects.filter(Q(user_type='fund') | Q(user_type='user_helper'))
     serializer_class = serializers.ProfileSerializer
     filter_backends = [
         django_filters.rest_framework.DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter]
     ordering_fields = ['date_joined']
-    filterset_fields = ['verified_account', 'user_type']
+    filterset_fields = ['verified_account']
+    search_fields = ['date_joined']
+    pagination_class = UserListPagination
+
+
+class UsersListView(generics.ListAPIView):
+    queryset = User.objects.filter(user_type='default_user')[:50]
+    serializer_class = serializers.ProfileSerializer
+    filter_backends = [
+        django_filters.rest_framework.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter]
+    ordering_fields = ['date_joined']
+    filterset_fields = ['verified_account']
     search_fields = ['date_joined']
     pagination_class = UserListPagination
