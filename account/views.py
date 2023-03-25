@@ -156,7 +156,7 @@ class HelpersFundsListView(generics.ListAPIView):
 
 
 class UsersListView(generics.ListAPIView):
-    queryset = User.objects.filter(user_type='default_user')[:50]
+    queryset = User.objects.filter(user_type='default_user')
     serializer_class = serializers.ProfileSerializer
     filter_backends = [
         django_filters.rest_framework.DjangoFilterBackend,
@@ -166,6 +166,29 @@ class UsersListView(generics.ListAPIView):
     filterset_fields = ['verified_account']
     search_fields = ['date_joined']
     pagination_class = UserListPagination
+
+
+class TopDonaters(generics.ListAPIView):
+    queryset = User.objects.filter(user_type='default_user')
+    serializer_class = serializers.ProfileSerializer
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            top_number = 1
+            sorted_top = list(sorted(serializer.data, key=lambda d : d['all_donations'], reverse=True))
+            for dict in sorted_top:
+                dict['top_id'] = top_number
+                top_number += 1
+            return self.get_paginated_response(sorted_top)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 
 class MainPageView(generics.GenericAPIView):

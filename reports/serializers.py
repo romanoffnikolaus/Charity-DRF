@@ -13,7 +13,7 @@ class ReportImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj): #Изменить URL перед деплоем. Это костыль.
         if obj.image:
-            return f'http://127.0.0.1:8000/media/{obj.image.name}'
+            return f'https://savethedayteam.com/media/{obj.image.name}'
         return None
     
     

@@ -236,4 +236,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             representation.pop('category')
             representation.pop('adress')
             representation.pop('requisites')
+            queryset = Donation.objects.filter(user=instance)
+            representation['all_donations'] = sum(map(lambda d: d.amount, queryset))
             return representation
