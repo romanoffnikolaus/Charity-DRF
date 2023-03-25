@@ -154,8 +154,8 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 
 # celery settings
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 
 # media
@@ -169,3 +169,18 @@ STATIC_ROOT = BASE_DIR / 'static'
 PAYPAL_RECEIVER_EMAIL = 'sb-fe043915120626@business.example.com'
 
 PAYPAL_TEST = True
+
+
+#CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:8000', 'http://localhost:3000', 'http://0.0.0.0:8000'
+]
+CORS_ALLOWED_METHODS = [
+    'GET', 'POST', 'PATCH', 'PUT', 'OPTIONS'
+]
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+
+#CSRF 
+CSRF_TRUSTED_ORIGINS=['https://savethedayteam.com']

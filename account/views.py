@@ -20,6 +20,7 @@ from . import serializers
 from .permissions import IsOwnerOrReadOnly
 from .models import User
 from payment.models import Donation
+from payment.serializers import DonationSerializer
 
 
 
@@ -123,10 +124,12 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
         self.permission_classes = [AllowAny]
         return super().retrieve(request, *args, **kwargs)
     
-    
+
+
 class DonateToFundView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(request_body=DonationSerializer)
     def post(self, request, pk= None):
         fund = User.objects.get(id=pk)
         user = request.user
