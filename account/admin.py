@@ -15,4 +15,5 @@ class UserAdmin(admin.ModelAdmin):
         'phone_number',
         ('is_active', 'is_staff', 'verified_account', 'is_superuser'),
         ('facebook_url', 'twitter_url', 'telegram_url' ),
+        ('region', 'category', 'adress', 'requisites')
     ]

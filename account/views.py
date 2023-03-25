@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,6 +20,7 @@ from . import serializers
 from .permissions import IsOwnerOrReadOnly
 from .models import User
 from payment.models import Donation
+
 
 
 User = get_user_model()
@@ -146,14 +149,14 @@ class HelpersFundsListView(generics.ListAPIView):
         django_filters.rest_framework.DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter]
-    ordering_fields = ['date_joined']
-    filterset_fields = ['verified_account', 'user_type']
-    search_fields = ['date_joined']
+    ordering_fields = ['date_joined', 'user_type', 'region', 'category', 'username']
+    filterset_fields = ['verified_account', 'user_type', 'region', 'category', 'username']
+    search_fields = ['date_joined', 'region', 'category__title', 'username']
     pagination_class = UserListPagination
 
 
 class UsersListView(generics.ListAPIView):
-    queryset = User.objects.filter(user_type='default_user')[:50]
+    queryset = User.objects.filter(user_type='default_user')
     serializer_class = serializers.ProfileSerializer
     filter_backends = [
         django_filters.rest_framework.DjangoFilterBackend,
@@ -163,3 +166,39 @@ class UsersListView(generics.ListAPIView):
     filterset_fields = ['verified_account']
     search_fields = ['date_joined']
     pagination_class = UserListPagination
+
+
+class TopDonaters(generics.ListAPIView):
+    queryset = User.objects.filter(user_type='default_user')
+    serializer_class = serializers.ProfileSerializer
+    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            top_number = 1
+            sorted_top = list(sorted(serializer.data, key=lambda d : d['all_donations'], reverse=True))
+            for dict in sorted_top:
+                dict['top_id'] = top_number
+                top_number += 1
+            return self.get_paginated_response(sorted_top)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+
+class MainPageView(generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        all_sum = sum(map(lambda d: d.amount,Donation.objects.all()))
+        today_sum = sum(map(lambda d: d.amount, Donation.objects.filter(donation_date__contains=datetime.date.today())))
+        timedelta = datetime.timedelta(days=30)
+        last_30_days = datetime.date.today() - timedelta
+        print(last_30_days)
+        last_30_days_donations_sum = sum(map(lambda d: d.amount, Donation.objects.filter(donation_date__gte=last_30_days)))
+        data = {'all_donations': all_sum, 'today_donations':today_sum, 'last_30_days_donations':last_30_days_donations_sum}
+        return Response(data)
+
