@@ -5,10 +5,12 @@ from rest_framework.response import Response
 import django_filters
 from django.shortcuts import redirect
 from django.urls import reverse 
+from drf_yasg.utils import swagger_auto_schema
 
 from . import models
 from . import serializers
 from . import permissions as p
+from payment.serializers import DonationSerializer
 from review.serializers import ProgramCommentSerializer, ProgramRatingSerializer
 from review.models import ProgramRating, ProgramComment
 from payment.models import Donation
@@ -76,6 +78,7 @@ class ProgramsViewSet(ModelViewSet):
                 commented_program.save()
         return Response(serializer.data)
     
+    @swagger_auto_schema(request_body=DonationSerializer)
     @action(methods = ['POST'], detail=True)
     def donate(self, request, pk):
         program = self.get_object()
