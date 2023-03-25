@@ -16,5 +16,6 @@ urlpatterns = [
     path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile'),
     path('helpers_funds_list/', views.HelpersFundsListView.as_view(), name='helpers_funds_list'),
     path('users_list/', views.UsersListView.as_view(), name='users_list'),
-    path('donate_to_fund/<int:pk>/',views.DonateToFundView.as_view(), name='donate_to_fund')
+    path('donate_to_fund/<int:pk>/',views.DonateToFundView.as_view(), name='donate_to_fund'),
+    path('main_page/', views.MainPageView.as_view(), name='main_page')
 ]

@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,6 +20,7 @@ from . import serializers
 from .permissions import IsOwnerOrReadOnly
 from .models import User
 from payment.models import Donation
+
 
 
 User = get_user_model()
@@ -146,9 +149,9 @@ class HelpersFundsListView(generics.ListAPIView):
         django_filters.rest_framework.DjangoFilterBackend,
         filters.SearchFilter,
         filters.OrderingFilter]
-    ordering_fields = ['date_joined']
-    filterset_fields = ['verified_account', 'user_type']
-    search_fields = ['date_joined']
+    ordering_fields = ['date_joined', 'user_type', 'region', 'category', 'username']
+    filterset_fields = ['verified_account', 'user_type', 'region', 'category', 'username']
+    search_fields = ['date_joined', 'region', 'category__title', 'username']
     pagination_class = UserListPagination
 
 
@@ -163,3 +166,16 @@ class UsersListView(generics.ListAPIView):
     filterset_fields = ['verified_account']
     search_fields = ['date_joined']
     pagination_class = UserListPagination
+
+
+class MainPageView(generics.GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        all_sum = sum(map(lambda d: d.amount,Donation.objects.all()))
+        today_sum = sum(map(lambda d: d.amount, Donation.objects.filter(donation_date__contains=datetime.date.today())))
+        timedelta = datetime.timedelta(days=30)
+        last_30_days = datetime.date.today() - timedelta
+        print(last_30_days)
+        last_30_days_donations_sum = sum(map(lambda d: d.amount, Donation.objects.filter(donation_date__gte=last_30_days)))
+        data = {'all_donations': all_sum, 'today_donations':today_sum, 'last_30_days_donations':last_30_days_donations_sum}
+        return Response(data)
+

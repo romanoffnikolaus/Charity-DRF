@@ -19,7 +19,7 @@ class ProgramsViewSet(ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter]
     search_fields = ['title', 'user__user_type']
-    # filterset_fields = 'user__user_type'
+    filterset_fields = ['user__user_type', 'category', 'region']
     ordering_fields = ['title', 'created_at']
     
     ordering = ['title']
@@ -84,10 +84,3 @@ class ProgramsViewSet(ModelViewSet):
         donation =Donation.objects.create(charity_prigram=program, user=user, amount=amount)
         request.session['donation_id'] = donation.id
         return redirect('payment_process')
-        
-
-    
-    def get_serializer_class(self):
-            if self.action == 'list':
-                self.serializer_class = serializers.ProgramListSerializer
-            return super().get_serializer_class()

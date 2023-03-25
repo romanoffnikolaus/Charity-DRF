@@ -5,6 +5,9 @@ from django.core.mail import send_mail
 from .tasks import send_activation_code_celery
 from charity_programs.models import Program
 from charity_programs.serializers import ProgramSerializer
+from payment.models import Donation
+
+
 
 
 User = get_user_model()
@@ -17,15 +20,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
     verified_account = serializers.ReadOnlyField()
     first_name = serializers.CharField(required = True)
     last_name = serializers.CharField(required=True)
-    user_type = serializers.ChoiceField(
-            required=True,
-            help_text='Select user type',
-            choices=(
-                ('default_user', 'Default user (Donations only)'),
-                ('user_helper', 'User helper (Creating charity programs)'),
-                ('fund', 'Fund (Creating charity programs as organization)')
-            )
-        )
+    # user_type = serializers.ChoiceField(
+    #         required=True,
+    #         help_text='Select user type',
+    #         choices=(
+    #             ('default_user', 'Default user (Donations only)'),
+    #             ('user_helper', 'User helper (Creating charity programs)'),
+    #             ('fund', 'Fund (Creating charity programs as organization)')
+    #         )
+    #     )
     phone_number = serializers.CharField(max_length=20, required=False)
     region = serializers.ChoiceField(choices=User.region_fields, required=False)
     
@@ -49,7 +52,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'verified_account',
             'id',
             'phone_number',
-            'region'
+            'region',
+            'category',
+            'adress',
+            'requisites'
         )
 
     def validate(self, attrs):
@@ -197,10 +203,37 @@ class ProfileSerializer(serializers.ModelSerializer):
             'verified_account',
             'phone_number',
             'your_programs',
-            'region'
+            'region',
+            'category',
+            'adress',
+            'requisites'
         ]
 
     def get_your_programs(self, instance):
         programs = Program.objects.filter(user=instance)
         program_serializer = ProgramSerializer(programs, many=True)
         return program_serializer.data
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.user_type in ('helper', 'fund'):
+            programs = Program.objects.filter(user=instance)
+            programs_regions = list(map(lambda p: p.region, programs))
+            programs_categories = list(map(lambda p: p.category.title, programs))
+            fund_donations_sum = sum(list(map(lambda d: d.amount, Donation.objects.filter(fund=instance))))
+            programs_donations_sum = sum(list(map( lambda p: p['donations_sum'], self.get_your_programs(instance))))
+            all_donations = fund_donations_sum + programs_donations_sum
+            representation['programs_regions'] = programs_regions
+            representation['programs_regions_quantity'] = len(programs_regions)
+            representation['programs_categories'] = programs_categories
+            representation['fund_donations_sum'] = fund_donations_sum
+            representation['programs_donations_sum'] = programs_donations_sum
+            representation['all_dontaions_sum'] = all_donations
+            return representation
+        else:
+            representation.pop('your_programs')
+            representation.pop('region')
+            representation.pop('category')
+            representation.pop('adress')
+            representation.pop('requisites')
+            return representation
