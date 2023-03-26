@@ -22,6 +22,12 @@ class DonationListView(generics.ListAPIView):
         self.queryset = Donation.objects.filter(user=request.user)
         return super().list(request, *args, **kwargs)
     
+
+class AllDonationListView(generics.ListAPIView):
+    queryset = Donation.objects.all()
+    serializer_class = serializers.DonationSerializer
+
+
 @csrf_exempt
 def payment_done(request):
     return render (request, 'payment/payment_done.html')
