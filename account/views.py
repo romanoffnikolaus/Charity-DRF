@@ -93,7 +93,10 @@ class LoginView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         username = request.data.get('username')
-        user = User.objects.get(username=username)
+        try:
+            user = User.objects.get(email=username)
+        except Exception:
+            return  Response('Invalid email')
         user_data = {'id': user.id}
         new_data = list(user_data.items())
         try:
