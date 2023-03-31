@@ -175,7 +175,7 @@ PAYPAL_API_SIGNATURE = config('PAYPAL_API_SIGNATURE')
 
 #CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:8000', 'http://localhost:3000', 'http://0.0.0.0:8000'
+    'http://127.0.0.1:8000', 'http://localhost:3000', 'http://0.0.0.0:8000', 'https://savethedayteam.com'
 ]
 CORS_ALLOWED_METHODS = [
     'GET', 'POST', 'PATCH', 'PUT', 'OPTIONS'
