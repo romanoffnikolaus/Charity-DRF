@@ -14,7 +14,8 @@ class UserTest(APITestCase):
             first_name = 'name',
             last_name = 'last_name',
             password = 'pimp',
-            is_active = True
+            is_active = True,
+            user_type = 'deafult_user'
         )
 
     def test_register(self):
@@ -25,7 +26,8 @@ class UserTest(APITestCase):
             'first_name': 'test_name',
             'last_name': 'test_last_name',
             'username':'test_username',
-            'user_type': 'default_user'
+            'user_type': 'default_user',
+
         }
         request = self.factory.post('register/', data, format='json')
         view = views.RegistrationView.as_view()
@@ -36,11 +38,13 @@ class UserTest(APITestCase):
     def test_login(self):
         data = {
             'password': 'pimp',
-            'username': 'username'
+            'username': 'username',
+            'email':'pimp@gmail.com'
         }
         request = self.factory.post('login/', data, format = 'json')
         view = TokenObtainPairView.as_view()
         response = view(request)
+        print(response.status_code)
         assert response.status_code == 200
 
     def test_change_password(self):
