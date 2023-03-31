@@ -37,11 +37,12 @@ def payment_done(request):
 def payment_cancelled(request):
     return render(request, 'payment/payment_cancelled.html')    
 
+
+@csrf_exempt
 def payment_process(request):
     host = request.get_host()
     donation_id = request.session.get('donation_id')
     donation = Donation.objects.get(id=donation_id)
-    print(donation_id)
 
     paypal_dict = {
         'business': settings.PAYPAL_RECEIVER_EMAIL,
@@ -59,5 +60,6 @@ def payment_process(request):
         }
 
     form = PayPalPaymentsForm(initial=paypal_dict)
-    return render(request, 'payment/process_payment.html', {'donation': donation, 'form': form})
+    context = {'donation': donation, 'form': form, 'amount': donation.amount}
+    return render(request, 'payment/process_payment.html', context)
 
