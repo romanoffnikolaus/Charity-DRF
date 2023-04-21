@@ -92,11 +92,11 @@ class ForgotPasswordCompleteView(PermissionMixin, APIView):
 class LoginView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        username = request.data.get('username')
+        username = request.data.get('email')
         try:
             user = User.objects.get(email=username)
         except Exception:
-            return  Response('Invalid email')
+            return  Response({'error':'Invalid email'}, status=401)
         user_data = {'id': user.id}
         new_data = list(user_data.items())
         try:

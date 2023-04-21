@@ -8,4 +8,4 @@ class IsCreatorPermission(permissions.BasePermission):
 
 class IsDefaultUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.user_type != 'Default user'
+        return request.user.user_type != 'default_user'
