@@ -15,12 +15,14 @@ import django_filters
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
 from django.shortcuts import redirect
+from django.db import transaction
 
 from . import serializers
 from .permissions import IsOwnerOrReadOnly
 from .models import User
 from payment.models import Donation
 from payment.serializers import DonationSerializer
+
 
 
 
@@ -133,6 +135,7 @@ class DonateToFundView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(request_body=DonationSerializer)
+    @transaction.atomic
     def post(self, request, pk= None):
         fund = User.objects.get(id=pk)
         user = request.user
