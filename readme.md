@@ -1,5 +1,4 @@
-# Lab project (Udemy clone)
-Расположен по адресу: http://34.125.65.18/docs/
+# Savetheday (charity platform). Minimal
 
 Content
 * [Description](#Description)
