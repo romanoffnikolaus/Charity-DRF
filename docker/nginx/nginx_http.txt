@@ -1,4 +1,4 @@
-HTTP: upstream main_api {
+upstream main_api {
     server main_api:8000;
 }
 
@@ -16,11 +16,15 @@ server {
     }
 
     location /static/ {
-        alias /SaveTheDay/static/;
+        alias /enactus/static/;
     }
 
     location /media/ {
-        alias /SaveTheDay/media/;
+        alias /enactus/media/;
+    }
+    location ~ /\.well-known/acme-challenge {
+        allow all;
+        root /var/www/certbot;
     }
 }
 
@@ -32,3 +36,11 @@ sudo docker-compose up -d certbot
 sudo docker logs certbot чтобы посмотреть результат работы контейнера
 обязатльено закоментить приложение certbot в докеркомпозе, чтобы при ребилде не получать новые сертификаты
 далее необходимо сменить .conf файл на настройки которые в nginx_https см иструкции там
+
+в http не забыть добавить акме компоненгт 
+
+location ~ /\.well-known/acme-challenge {
+        allow all;
+        root /var/www/certbot;
+    }
+    
