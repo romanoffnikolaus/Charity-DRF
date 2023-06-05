@@ -1,4 +1,4 @@
-# Savetheday (charity platform)
+# Savetheday (charity platform). Minimal
 
 Content
 * [Description](#Description)
